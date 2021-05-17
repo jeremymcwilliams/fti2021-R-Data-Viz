@@ -1,19 +1,466 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Watzek Library ggplot workshop"
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+## ggplot workshop
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+#### FTI 2020
+
+
+
+### Goals of this workshop:  
+
+* Load and filter datasets as needed
+* Learn the basic elements of ggplot
+* Repeat!
+* Use a few statistical methods in R
+
+
+### What is ggplot?
+
+ggplot is an R package created by Hadley Wickham (he's kind of a big deal in the R world). The "gg" translates to "grammar of graphics", and is founded in the idea that all data visualizations are comprised of three components:
+
+* data set
+* aesthetics, or visual marks that represent the data (i.e. the stuff that you see)
+* geometric objects, or "geoms" (e.g the type of plot)
+
+ggplot is part of the "tidyverse" - a series of packages that share common strategies for working with data and generating visualizations. In last Wednesday's workshop, we used some tidyverse packages (readr, dplyr) for reading and filtering datasets. Fortunately, there's a simple way to load all these libraries at once, as we'll use various functions spread throughout different packages in the tidyverse:
 
 ```{r}
-plot(cars)
+library(tidyverse)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+### Getting Help  
+ggplot has many, many options and possibilities. When getting started (and even once you're a ggplot expert), it's a good idea to refer to documentation. In the "Files" section, click on the "ggplot2-cheatsheet.pdf". The RStudio "help" function is also useful:
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+```{r}
+help(ggplot)
+```
+
+```{r}
+help(geom_jitter)
+```
+
+As always, entering your question or error message into your favorite search engine is trypically a pretty effective way to get help. Chances are good that someone else has already encountered a ggplot problem you've encountered, and the answers are likely online.
+
+
+
+### Baby Names data set
+
+In our Files section, we have a dataset called babyNames.csv. This dataset is from the Social Security Administration, and shows the number of times each unique baby name was given in the US, from 1960-2017.
+
+First let's load this dataset, and take a look at it:
+
+```{r}
+babyNames<-read_csv("babyNames.csv")
+
+#prints babyNames
+babyNames
+```
+
+
+
+Let's say were interested in how the number of female babies annually named Mary has changed over time. First we can use the "filter" function to get a subset of our data:
+```{r}
+
+mary<-filter(.data=babyNames, (Name=="Mary" & Sex=="Girls"))
+
+# print "mary" dataset
+mary
+
+```
+
+
+Our "mary" variable now just has the count of "Marys" over time. Let's do a line plot to see the change over time. Here is the code we will run:
+
+ggplot(data=mary, mapping=aes(x=Year, y=Count))+geom_line()
+
+Looking at the code, here's how we're including the three basic parts of a ggplot chart: 
+
+* DATA - data=mary  
+* AESTHETICS - mapping=aes(x=Year, y=Count)  
+* GEOM - +geom_line()
+
+
+```{r}
+
+ggplot(data=mary, mapping=aes(x=Year, y=Count))+geom_line()
+
+
+```
+
+
+YOUR TURN:
+First, create a dataset variable limited to just your name. Then, generate a line plot of your name. 
+```{r}
+
+
+```
+
+Bonus! Can you find and plot a name for which the use is increasing over time?
+```{r}
+
+
+
+```
+
+
+
+
+
+We can change our plot type:
+
+```{r}
+
+ggplot(data=mary, aes(x=Year, y=Count))+geom_area()
+
+ggplot(data=mary, aes(x=Year, y=Count))+geom_point()
+
+```
+
+
+YOUR TURN:
+Create an area plot of your name over time
+```{r}
+
+
+```
+
+
+
+### Labels & Colors
+
+You can specify labels to add to your plot by using the "labs()" function:
+
+```{r}
+
+ggplot(data=mary, aes(x=Year, y=Count))+geom_area()+labs(y="number of Marys", x="Over Time", title="Marys over time")
+
+```
+
+Additionally you can add colors to the area:
+
+```{r}
+ggplot(data=mary, aes(x=Year, y=Count))+geom_area(color = "black", fill = "blue")+labs(y="number of Marys", x="Over Time", title="Marys over time in blue!")
+
+
+```
+
+
+YOUR TURN:
+Can you add some labels and color to your area plot?
+```{r}
+
+
+```
+
+
+
+
+### Average Height by Country
+
+In the Files window to the right, you'll see a file called "average-height-of-men.csv". This is a dataset from NCD-Risc (http://www.ncdrisc.org/data-downloads.html) that has the average annual height of men by country from 1896-1996. Let's load this data below by createing a variable called "men". We can then take a look at the data by printing "men".
+
+```{r}
+
+men<-read_csv("average-height-of-men.csv")
+
+men
+
+```
+
+
+This dataset looks pretty straightforward. One small issue, though, is that the column name for height is a little much. To make our work easier down the road, let's rename the column header to something more manageable.
+
+
+
+```{r}
+#first, let's look at the column names:
+colnames(men)
+
+
+```
+
+```{r}
+# and let's rename it using the "names" function:
+names(men)[4]<-"Height"
+
+#print it out:
+men
+
+
+```
+
+
+
+Let's say we're interested in seeing any changes over time in the average height of men from the United States.
+
+
+
+```{r}
+usMen<-filter(.data=men, Entity=="United States")
+usMen
+
+```
+
+Now that we have a subset of data, let's create a line plot:
+
+```{r}
+
+ggplot(data=usMen, mapping=aes(x=Year, y=Height))+geom_line()
+
+
+
+```
+
+
+Now let's compare multiple countries at once. We can use the "or" operater | in the filter function to return data for multiple countries:
+
+```{r}
+
+countries<-filter(.data=men, Entity=="United States" | Entity=="Mexico" | Entity=="Canada")
+countries
+
+
+ggplot(data=countries, mapping=aes(x=Year, y=Height, color=Entity))+geom_line()+labs(y="Average Height (cm)", title="Change in average height over time")
+
+
+```
+
+
+
+
+
+
+
+YOUR TURN:
+Use the "average-height-of-women.csv" dataset to generate a line graph plotting average height of women from five countries. .
+
+```{r}
+#enter code below
+
+
+
+```
+
+
+
+
+### More data filtering with the "pipe" operator and summarise()
+
+Let's take a look at a built-in dataset called "chickwts":
+
+```{r}
+
+chickens<-as_tibble(chickwts)
+# as_tibble() puts the dataset in "tibble" format
+
+chickens
+```
+
+This data is from a study in 1948 comparing the weights of chickens on different diets. Let's say we're interested in comparing the average weights of the chickens grouped by the type of diet, with the end goal of displaying the data in a bar chart. We can readily get our data in the format we need by using using the "pipe" operator, combined with group_by() and summarise(). group_by() first lets us identify which field we want to group by, while summarise() then lets us calculate various statistical measures:
+
+```{r}
+averageChickens<-chickens %>% 
+  group_by(feed) %>% 
+  summarise(avg=mean(weight), stdDev=sd(weight), n=n(), stdEr=sd(weight)/sqrt(n()))
+
+averageChickens
+```
+
+What is happening here? The "%>%" (or "pipe") operator sort of means "pass this on to the next thing". It's a handy R convention for chaining functions together.  
+
+The "summarise" (a.k.a. "summarize") function, when combined with "group_by", is good for adding new statistical metrics for the groups.
+
+
+Now we can take this data "averageChickens" and create a bar chart:
+
+```{r}
+
+ggplot(data=averageChickens, mapping=aes(x=feed, y=avg))+geom_bar(stat="identity")
+
+# stat="identity" means "the y value is part of the dataset"
+
+# another common stat value is "count", where the height of the bar is based upon counting the data rows:
+# ggplot(data=chickwts, mapping=aes(x=feed))+geom_bar(stat="count")
+
+```
+
+This seems fine, but we can make it a little better by adding some labels, and using the "fill" aes attribute to add some color and a legend:
+
+```{r}
+ggplot(data=averageChickens, mapping=aes(x=feed, y=avg, fill=feed))+geom_bar(stat="identity")+labs(title="Average Chicken weight by Food Type", x="Food Type", y="Units of Weight", fill = "Food Type")
+
+# note that "fill" is an option in labs() - this gives a title to the legend
+
+```
+
+We can go a step further and add error bars to our bar chart. It's the same as above, except we add the "geom_errorbar" function, and give it some metrics. In this case, we'll say the error bars should range 1 standard deviation above and below the mean (hence the ymin and ymax values below).
+
+```{r}
+
+ggplot(data=averageChickens, mapping=aes(x=feed, y=avg, fill=feed))+geom_bar(stat="identity")+labs(title="Average Chicken weight by Food Type", x="Food Type", y="Units of Weight", fill = "Food Type")+geom_errorbar(mapping=aes(ymin=avg-stdDev, ymax=avg+stdDev, width=0.2))
+
+```
+
+
+Alternately, we can show this as a box plot by using the original "chicken" data.
+
+```{r}
+
+ggplot(data=chickens, mapping=aes(x=feed, y=weight, fill=feed))+geom_boxplot()+geom_jitter(width=0.2)
+
+```
+
+
+
+YOUR TURN:
+
+Consider the "iris" dataset, which comes with base R.
+
+This famous (Fisher's or Anderson's) iris data set gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris. The species are Iris setosa, versicolor, and virginica.
+
+```{r}
+
+iris
+
+```
+
+
+Can you create a bar chart showing:
+* The mean Petal length by Species
+* Include error bars showing 1 standard deviation above and below the mean.
+* Each species should have a different color
+* Should be labeled appropriately (measure is in cm.)
+
+```{r}
+
+# first use group_by() and summarise() to generate a new data frame with desired statistics
+
+
+# next, use that data to create your bar chart
+
+
+
+
+```
+
+
+### Some statistics
+
+Let's try running a 1-way ANOVA on the chickwts dataset. 
+Null hypothesis: the means of the groups are the same
+Alternative hypothesis: at least one sample mean is not equal to the others
+
+```{r}
+
+# Compute the analysis of variance
+res.aov <- aov(weight ~ feed, data = chickens)
+# Summary of the analysis
+summary(res.aov)
+
+```
+
+
+Let's try running a t-test, using a dataset in Google Drive:
+
+* Visit the file here: https://docs.google.com/spreadsheets/d/12yThFnz5aEUbZ_FU__RP68XRQhLyYdNJlHotaWgOpqc/edit?usp=sharing
+* Feel free to add entries to this sheet
+* Download as CSV file
+* Upload the file in your RStudio Server Files area
+* rename if necessary to "favnums.csv"
+
+Below, we'll load the data, create some variables for each column of data, and then run the t-test.
+
+```{r}
+
+favs=read_csv("favnum.csv")
+
+favs
+
+g1<-favs$'fav1-10'
+g2<-favs$'fav21-30'
+
+
+t.test(g1, g2)
+
+```
+
+
+
+
+
+### Optional Final Project
+
+It's now your turn to make a data visualization. 
+
+
+Some options include (but are not limited to):  
+
+* Use the babyNames dataset to compare two names over time (hint: use the "or" operator to filter the dataset)
+* Use the PlantGrowth dataset to create a bar chart comparing the different weights of plant growth
+* Try a new chart type (refer to the ggplot cheat sheet)
+* Make a chart from a dataset that interests you (in the console, run data()  to view the available datasets)
+
+Suggested strategy:
+
+* Find/examine a dataset, and decide upon a useful plot from that data  
+* Filter your data to get a subset of the larger dataset (if applicable). Consider using group_by() with summarise() if you want to plot statistical metrics (mean, standard deviation, etc.)  
+* Create an intial plot with the three basic components (data, aesthetics, geom).
+* Augment your plot by adding labels, colors, etc.
+
+
+YOUR TURN:
+Make a graph of your choosing, maybe share w/class!
+```{r}
+
+
+
+
+
+
+```
+
+
+
+
+### Saving your plot 
+
+To save your plot as a file, you can use the ggsave() function. ggsave will save the last plot generated:
+
+```{r}
+
+ggsave("plot.png", height=5, width=5, units="cm", scale=3)
+
+```
+
+From there, you can download your pot file, and use it however you choose.
+
+
+
+Parting Thoughts:
+
+* Learning any language takes persistence and effort. 
+* Pick a project or dataset relevant to your work, and try using it in R.
+* Need some local help? Reach out to us - digitalinitiatives@lclark.edu 
+
+
+Online tutorials:
+
+* http://www.codeschool.com/courses/try-r
+* http://www.datacamp.org
+* http://swirlstats.com/
+* http://r4ds.had.co.nz/  
+
+Getting help:
+
+* Documentation and tutorials: http://cran.r-project.org/other-docs.html
+* Recommended R packages by topic: http://cran.r-project.org/web/views/
+* Mailing list: https://stat.ethz.ch/mailman/listinfo/r-help
+* StackOverflow: http://stackoverflow.com/questions/tagged/r
+* Just google your question (e.g. "How do I do 'x' in R?")
 
