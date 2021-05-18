@@ -53,7 +53,16 @@ As always, entering your question or error message into your favorite search eng
 
 In our Files section, we have a dataset called OR.csv. This dataset is from the Social Security Administration, and shows the number of times each unique baby name was given in the Oregon, from 1910-2020.
 
-First let's load this dataset, and take a look at it:
+Our goal is to create a chart that shows the number of times a specific name is assigned to a baby over the years contained in the data set. With any programming problem, it's good to think about it in terms of steps:
+
+* load the data set
+* filter the data so it only contains data for the name I'm interested in
+* create a chart with that data
+
+Once you break the problem down into steps, hopefully it'll be easier to tackle. Plus, each individual step is 'googleable', so help is not far away.
+
+
+First let's load this data set, and take a look at it:
 
 ```{r}
 babyNames<-read_csv("OR.csv")
@@ -421,28 +430,32 @@ summary(res.aov)
 
 Let's try running a t-test, using a dataset in Google Drive:
 
-* Visit the file here: https://docs.google.com/spreadsheets/d/12yThFnz5aEUbZ_FU__RP68XRQhLyYdNJlHotaWgOpqc/edit?usp=sharing
-* Feel free to add entries to this sheet
-* Download as CSV file
-* Upload the file in your RStudio Server Files area
-* rename if necessary to "favnums.csv"
 
-Below, we'll load the data, create some variables for each column of data, and then run the t-test.
+Below, we'll load the data and examine the data: 
 
 ```{r}
 
-favs=read_csv("favnum.csv")
+#file is "published to the web as a csv" for easy sharing
+
+favs<-read.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vRSyiTSRywnRDzBWfJQiAF46sOywicLgMx1scPGQWRnS9ssA28ShE8r-_tme2Eq9fQDugW1Yh9FONqb/pub?output=csv")
 
 favs
 
-g1<-favs$'fav1-10'
-g2<-favs$'fav21-30'
+```
+
+
+Now we want to run a t-test, comparing the two columns of data. We can create variables of arrays for each column, using the "$" to target the column heading. Once these variables are in place, running the t-test is easy: 
+
+```{r}
+
+g1<-favs$'fav1.10'
+g2<-favs$'fav21.30'
 
 
 t.test(g1, g2)
 
-```
 
+```
 
 
 
