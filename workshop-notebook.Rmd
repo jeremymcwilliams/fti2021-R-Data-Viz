@@ -1,13 +1,13 @@
 ---
-title: "Watzek Library ggplot workshop"
+title: "Data Visualizations with R"
 output:
   pdf_document: default
   html_notebook: default
 ---
 
-## ggplot workshop
+## Data Visualizations with R
 
-#### FTI 2020
+#### FTI 2021
 
 
 
@@ -27,7 +27,7 @@ ggplot is an R package created by Hadley Wickham (he's kind of a big deal in the
 * aesthetics, or visual marks that represent the data (i.e. the stuff that you see)
 * geometric objects, or "geoms" (e.g the type of plot)
 
-ggplot is part of the "tidyverse" - a series of packages that share common strategies for working with data and generating visualizations. In last Wednesday's workshop, we used some tidyverse packages (readr, dplyr) for reading and filtering datasets. Fortunately, there's a simple way to load all these libraries at once, as we'll use various functions spread throughout different packages in the tidyverse:
+ggplot is part of the "tidyverse" - a series of packages that share common strategies for working with data and generating visualizations. We can load all the packages at once (including readr, dplyr, and other packages for working with data) by running this command:
 
 ```{r}
 library(tidyverse)
@@ -49,14 +49,14 @@ As always, entering your question or error message into your favorite search eng
 
 
 
-### Baby Names data set
+### Oregon Baby Names data set
 
-In our Files section, we have a dataset called babyNames.csv. This dataset is from the Social Security Administration, and shows the number of times each unique baby name was given in the US, from 1960-2017.
+In our Files section, we have a dataset called OR.csv. This dataset is from the Social Security Administration, and shows the number of times each unique baby name was given in the Oregon, from 1910-2020.
 
 First let's load this dataset, and take a look at it:
 
 ```{r}
-babyNames<-read_csv("babyNames.csv")
+babyNames<-read_csv("OR.csv")
 
 #prints babyNames
 babyNames
@@ -67,7 +67,7 @@ babyNames
 Let's say were interested in how the number of female babies annually named Mary has changed over time. First we can use the "filter" function to get a subset of our data:
 ```{r}
 
-mary<-filter(.data=babyNames, (Name=="Mary" & Sex=="Girls"))
+mary<-filter(.data=babyNames, (Name=="Mary" & Sex=="Female"))
 
 # print "mary" dataset
 mary
@@ -83,7 +83,7 @@ Looking at the code, here's how we're including the three basic parts of a ggplo
 
 * DATA - data=mary  
 * AESTHETICS - mapping=aes(x=Year, y=Count)  
-* GEOM - +geom_line()
+* GEOM - +geom_line()  
 
 
 ```{r}
@@ -101,12 +101,7 @@ First, create a dataset variable limited to just your name. Then, generate a lin
 
 ```
 
-Bonus! Can you find and plot a name for which the use is increasing over time?
-```{r}
 
-
-
-```
 
 
 
@@ -138,14 +133,14 @@ You can specify labels to add to your plot by using the "labs()" function:
 
 ```{r}
 
-ggplot(data=mary, aes(x=Year, y=Count))+geom_area()+labs(y="number of Marys", x="Over Time", title="Marys over time")
+ggplot(data=mary, aes(x=Year, y=Count))+geom_area()+labs(y="number of Marys", x="Over Time", title="Marys over time in Oregon")
 
 ```
 
 Additionally you can add colors to the area:
 
 ```{r}
-ggplot(data=mary, aes(x=Year, y=Count))+geom_area(color = "black", fill = "blue")+labs(y="number of Marys", x="Over Time", title="Marys over time in blue!")
+ggplot(data=mary, aes(x=Year, y=Count))+geom_area(color = "black", fill = "blue")+labs(y="number of Marys", x="Over Time", title="Marys over time in Oregon in blue!")
 
 
 ```
@@ -159,6 +154,64 @@ Can you add some labels and color to your area plot?
 ```
 
 
+### Comparing Two Datasets
+
+In your files area, you may notice VT.csv. This is similar baby name data, except for Vermont. How might these two states compare for different names? We can create a similar subset of Mary data for Vermont, and then plot the two together:
+
+```{r}
+#first, let's rename the original 'mary' variable:
+ORmary<-mary
+
+#load the Vermont data
+vermontBabies<-read_csv("VT.csv")
+#print it out
+vermontBabies
+
+#filter and print it out
+VTmary<-filter(.data=vermontBabies, (Name=="Mary" & Sex=="Female"))
+VTmary
+
+
+
+```
+
+
+Now we can plot the lines together, though we'll do it in a slightly different way:
+
+```{r}
+#Here we use "global" elements in the initial ggplot function (x, y), and then we chain two "geom_line" functions together, each with theis specific data set.
+
+
+ggplot( mapping=aes(x=Year, y=Count))+geom_line(data=VTmary)+geom_line(data=ORmary)
+
+
+
+```
+
+Of course, it's impossible to tell which line belongs to which state in the graph above, so we can add color="State" to the global mapping aesthetics. On the surface, this sounds strange....but basically it reads as "assign a color to the different values in the State column":
+
+```{r}
+ggplot( mapping=aes(x=Year, y=Count, color=State))+geom_line(data=VTmary)+geom_line(data=ORmary)
+
+
+
+```
+
+
+YOUR TURN:
+Use the CA.csv and TX.csv files to create a line chart comparing the incidence of the baby name of your choice after 1940.
+Strategy:
+* load the data sets into variables
+* filter each set based upon the conditions for yoru data
+* use ggplot to create the chart
+
+
+```{r}
+
+
+```
+
+What's another idea to solve this problem? (Hint, google the 'rbind' function).
 
 
 ### Average Height by Country
@@ -272,7 +325,7 @@ averageChickens<-chickens %>%
 averageChickens
 ```
 
-What is happening here? The "%>%" (or "pipe") operator sort of means "pass this on to the next thing". It's a handy R convention for chaining functions together.  
+What is happening here? The "%>%" (or "pipe") operator sort of means "pass this on to the next thing", or "and then...". It's a handy R convention for chaining functions together.  
 
 The "summarise" (a.k.a. "summarize") function, when combined with "group_by", is good for adding new statistical metrics for the groups.
 
@@ -401,7 +454,7 @@ It's now your turn to make a data visualization.
 
 Some options include (but are not limited to):  
 
-* Use the babyNames dataset to compare two names over time (hint: use the "or" operator to filter the dataset)
+* Use one of the baby names datasets to compare two names over time (hint: use the "or" operator to filter the dataset)
 * Use the PlantGrowth dataset to create a bar chart comparing the different weights of plant growth
 * Try a new chart type (refer to the ggplot cheat sheet)
 * Make a chart from a dataset that interests you (in the console, run data()  to view the available datasets)
@@ -463,4 +516,7 @@ Getting help:
 * Mailing list: https://stat.ethz.ch/mailman/listinfo/r-help
 * StackOverflow: http://stackoverflow.com/questions/tagged/r
 * Just google your question (e.g. "How do I do 'x' in R?")
+
+
+
 
